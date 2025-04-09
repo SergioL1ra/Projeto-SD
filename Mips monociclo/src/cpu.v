@@ -17,11 +17,13 @@ module cpu(input clk, input reset);
     wire [31:0] alu_result;
 
     // Controle
-    wire reg_write;
+    wire reg_dst, alu_src, mem_to_reg, reg_write, mem_read, mem_write, branch, jump;
+    wire [1:0] alu_op;
     wire [3:0] alu_control;
-    wire alu_src;
-    wire reg_dst;
-    wire [1:0] alu_op;  // NOVO sinal de entrada para alu_control
+
+    // Memória de Dados
+    wire [31:0] mem_data;
+    wire [31:0] write_data;
 
     assign opcode = instr[31:26];
     assign rs     = instr[25:21];
@@ -32,19 +34,23 @@ module cpu(input clk, input reset);
 
     assign sign_ext_imm = {{16{imm[15]}}, imm};
 
-    assign alu_src = (opcode != 6'b000000);              // I-type usa imediato
-    assign reg_dst = (opcode == 6'b000000);              // R-type escreve em rd
-    assign reg_write = 1'b1;                             // ainda fixo
-    assign alu_op = (opcode == 6'b000000) ? 2'b10 :      // R-type
-                    (opcode == 6'b000100) ? 2'b01 :      // beq
-                    2'b00;                               // lw/sw/addi/etc.
-
     assign alu_src2 = alu_src ? sign_ext_imm : read_data2;
     wire [4:0] write_reg = reg_dst ? rd : rt;
 
     // PC
     pc pc0 (.clk(clk), .reset(reset), .pc_in(pc_in), .pc_out(pc_out));
-    assign pc_in = pc_out + 4;
+
+    // Calculo do endereço de branch
+    wire [31:0] branch_addr = pc_out + 4 + (sign_ext_imm << 2);
+
+    // Lógica de branch
+    wire branch_taken = branch & alu_result[0]; // `alu_result[0]` indica igualdade (zero)
+
+    // Lógica de jump
+    wire [31:0] jump_addr = {pc_out[31:28], instr[25:0], 2'b00};
+
+    // Mux final para pc_in
+    assign pc_in = jump ? jump_addr : (branch_taken ? branch_addr : (pc_out + 4));
 
     // Memória de Instruções
     instr_mem imem (.addr(pc_out), .instr(instr));
@@ -56,9 +62,23 @@ module cpu(input clk, input reset);
         .read_reg1(rs),
         .read_reg2(rt),
         .write_reg(write_reg),
-        .write_data(alu_result),
+        .write_data(write_data),
         .read_data1(read_data1),
         .read_data2(read_data2)
+    );
+
+    // Unidade de Controle
+    control control_unit (
+        .opcode(opcode),
+        .reg_dst(reg_dst),
+        .alu_src(alu_src),
+        .mem_to_reg(mem_to_reg),
+        .reg_write(reg_write),
+        .mem_read(mem_read),
+        .mem_write(mem_write),
+        .branch(branch),
+        .jump(jump),
+        .alu_op(alu_op)
     );
 
     // ALU Control
@@ -76,4 +96,17 @@ module cpu(input clk, input reset);
         .result(alu_result),
         .zero()
     );
+
+    // Memória de Dados
+    data_mem dmem (
+        .clk(clk),
+        .mem_read(mem_read),
+        .mem_write(mem_write),
+        .addr(alu_result),
+        .write_data(read_data2),
+        .read_data(mem_data)
+    );
+
+    // Mux final para selecionar entre alu_result e mem_data
+    assign write_data = mem_to_reg ? mem_data : alu_result;
 endmodule
