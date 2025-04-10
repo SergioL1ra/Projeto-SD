@@ -27,7 +27,7 @@ module main_decoder(
                 memwrite = 0;
                 memtoreg = 0;
                 jump = 0;
-                aluop = 2'b10;
+                alu_op = 2'b10;
 
             end
             6'b001000: // addi
@@ -40,7 +40,7 @@ module main_decoder(
                 memwrite = 0;
                 memtoreg = 0;
                 jump = 0;
-                aluop = 2'b00;
+                alu_op = 2'b00;
 
             end
             6'b000100: // beq
@@ -53,7 +53,7 @@ module main_decoder(
                 memwrite = 0;
                 memtoreg = 0;
                 jump = 0;
-                aluop = 2'b01;
+                alu_op = 2'b01;
 
             end
             6'b000010: // jump
@@ -66,7 +66,7 @@ module main_decoder(
                 memwrite = 0;
                 memtoreg = 0;
                 jump = 1;
-                aluop = 2'b00;
+                alu_op = 2'b00;
 
             end
             6'b100011: // lw
@@ -79,7 +79,7 @@ module main_decoder(
                 memwrite = 0;
                 memtoreg = 1;
                 jump = 0;
-                aluop = 2'b00;
+                alu_op = 2'b00;
 
             end
             6'b101011: // sw
@@ -92,7 +92,7 @@ module main_decoder(
                 memwrite = 1;
                 memtoreg = 0;
                 jump = 0;
-                aluop = 2'b00;
+                alu_op = 2'b00;
 
             end
             default: 
@@ -105,7 +105,7 @@ module main_decoder(
                 memwrite = 1'bx;
                 memtoreg = 1'bx;
                 jump = 1'bx;
-                aluop = 2'bxx;
+                alu_op = 2'bxx;
 
             end
 

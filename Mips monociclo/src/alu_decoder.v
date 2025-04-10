@@ -11,13 +11,13 @@ module alu_decoder (
             2'b10: 
             begin                  // R-type
                 case (funct)
-                    6'b100000: alucontrol = 4'b0010; // ADD
-                    6'b100010: alucontrol = 4'b0110; // SUB
-                    6'b101010: alucontrol = 4'b0111; // SLT
-                    6'b011010: alucontrol = 4'b1010; // DIV
-                    6'b100100: alucontrol = 4'b0000; // AND
-                    6'b100101: alucontrol = 4'b0001; // OR
-                    default: alucontrol = 4'bxxxx;
+                    6'b100000: alu_control = 4'b0010; // ADD
+                    6'b100010: alu_control = 4'b0110; // SUB
+                    6'b101010: alu_control = 4'b0111; // SLT
+                    6'b011010: alu_control = 4'b1010; // DIV
+                    6'b100100: alu_control = 4'b0000; // AND
+                    6'b100101: alu_control = 4'b0001; // OR
+                    default: alu_control = 4'bxxxx;
                 endcase
             end
             default: alu_control = 4'b0000;

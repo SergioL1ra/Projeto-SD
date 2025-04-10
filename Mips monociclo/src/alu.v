@@ -17,7 +17,7 @@ module alu (
             4'b1010:
             begin
                 if(input2!=0)result = input1 / input2;          //DIV
-                else alu_result = 32'b11111111111111111111111111111111;
+                else result = 32'b11111111111111111111111111111111;
             end
             default: result = 0;
         endcase
