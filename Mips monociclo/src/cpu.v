@@ -32,17 +32,31 @@ module cpu(input clk, input reset);
     assign rd     = instr[15:11];
     assign imm    = instr[15:0];
     assign funct  = instr[5:0];
-    assign sign_ext_imm = {{16{imm[15]}}, imm};
+    sign_extend sign_extender (
+    .in(imm),
+    .out(sign_ext_imm)
+    );
 
     // Seleção de registrador destino e da segunda entrada da ALU
-    wire [4:0] write_reg = reg_dst ? rd : rt;
+    wire [4:0] write_reg;
+    mux5bits mux_write_reg (
+    .in0(rt),
+    .in1(rd),
+    .sel(reg_dst),
+    .out(write_reg)
+    );
     assign alu_src2 = alu_src ? sign_ext_imm : read_data2;
 
     // PC
     pc pc0 (.clk(clk), .reset(reset), .pc_in(pc_in), .pc_out(pc_out));
 
     // Cálculo do endereço de branch e jump
-    wire [31:0] branch_addr = pc_out + 4 + (sign_ext_imm << 2);
+    wire [31:0] shifted_imm;
+    shift_left2 shift_branch (
+        .in(sign_ext_imm),
+        .out(shifted_imm)
+    );
+    wire [31:0] branch_addr = pc_out + 4 + shifted_imm;
     wire branch_taken = branch & zero;
     wire [31:0] jump_addr = {pc_out[31:28], instr[25:0], 2'b00};
 
@@ -105,6 +119,11 @@ module cpu(input clk, input reset);
     );
 
     // Mux final de escrita no registrador
-    assign write_data = mem_to_reg ? mem_data : alu_result;
+    mux32bits mux_write_data (
+    .in0(alu_result),
+    .in1(mem_data),
+    .sel(mem_to_reg),
+    .out(write_data)
+);
 
 endmodule
