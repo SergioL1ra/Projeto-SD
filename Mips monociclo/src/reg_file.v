@@ -8,11 +8,13 @@ module reg_file (
     output [31:0] read_data1,
     output [31:0] read_data2
 );
-  reg [31:0] rf[31:0];
-  
-  always @(posedge clk)
-    if (reg_write) rf[write_reg] <= write_data;
-  
-  assign read_data1 = (read_data1 != 0) ? rf[read_data1] : 0;
-  assign read_data2 = (read_data2 != 0) ? rf[read_data2] : 0;
+    reg [31:0] rf[31:0];
+
+    always @(posedge clk) begin
+        if (reg_write)
+            rf[write_reg] <= write_data;
+    end
+
+    assign read_data1 = rf[read_reg1];
+    assign read_data2 = rf[read_reg2];
 endmodule
