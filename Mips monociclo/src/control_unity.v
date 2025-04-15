@@ -1,21 +1,30 @@
-module control_unity (
-    
-    input [5:0] op,
-    input [5:0] funct,
+module ControlUnit(
+  	input [5:0] op, funct,
     input zero,
-    input branch,
-
-    output memtoreg,
-    output memwrite,
-    output pcsrc,
-    output alusrc,
-    output regdst,
-    output regwrite,
-    output jump,
-    output [2:0] alu_control
-
+    output mem_to_reg, mem_write, branch, pc_src, alu_src, reg_dst, reg_write, jump,
+  	output [3:0] alu_control
 );
 
-    assign pcsrc = branch & zero;
-    
+  	wire [1:0] alu_op;
+  
+    MainDecoder md(
+        .op(op),
+      	.mem_to_reg(mem_to_reg),
+      	.mem_write(mem_write),
+        .branch(branch),
+      	.alu_src(alu_src),
+      	.reg_dst(reg_dst),
+      	.reg_write(reg_write),
+        .jump(jump),
+      	.alu_op(alu_op)
+    );
+
+    AluDecoder ad(
+        .funct(funct),
+      	.alu_op(alu_op),
+      	.alu_control(alu_control)
+    );
+
+    assign pc_src = branch & zero;
+
 endmodule

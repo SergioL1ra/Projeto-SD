@@ -1,20 +1,29 @@
-module reg_file (
-    input clk,
-    input reg_write,
-    input [4:0] read_reg1,
-    input [4:0] read_reg2,
-    input [4:0] write_reg,
-    input [31:0] write_data,
-    output [31:0] read_data1,
-    output [31:0] read_data2
+module RegisterFile(
+  	input clk,
+    input we3,
+  	input [4:0] ra1, ra2, wa3,
+  	input [31:0] wd3,
+  	output reg [31:0] rd1, rd2
 );
+
     reg [31:0] rf[31:0];
-
-    always @(posedge clk) begin
-        if (reg_write)
-            rf[write_reg] <= write_data;
+	
+    initial begin
+        integer i;
+        for (i = 0; i < 32; i = i + 1) begin
+           rf[i] = 32'b0;
+        end
     end
-
-    assign read_data1 = rf[read_reg1];
-    assign read_data2 = rf[read_reg2];
+  
+    always @(posedge clk) begin
+      if (we3) begin
+        rf[wa3] <= wd3;
+      end
+    end
+	
+  	always @(*) begin
+        rd1 = rf[ra1];
+        rd2 = rf[ra2];
+    end
+  
 endmodule

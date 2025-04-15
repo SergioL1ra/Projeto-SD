@@ -1,8 +1,18 @@
-module pc(input clk, input reset, input [31:0] pc_in, output reg [31:0] pc_out);
+module ProgramCounter(
+    input clk,
+    input reset,
+  	input [31:0] pc_in,
+    output wire [31:0] pc_out
+);
+  	reg [31:0] data;
+  
     always @(posedge clk or posedge reset) begin
         if (reset)
-            pc_out <= 0;
+            data <= 0;
         else
-            pc_out <= pc_in;
+            data <= pc_in; 
     end
+  
+  	assign pc_out = data;
+  
 endmodule

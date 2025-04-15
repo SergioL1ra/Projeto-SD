@@ -1,6 +1,10 @@
-module shift_left2(
-    input [31:0] in,
-    output [31:0] out
+module ShiftLeft(
+    input [31:0] a,
+  	output reg [31:0] y
 );
-    assign out = in << 2;
+  
+  	always @(*) begin
+		y = a << 2;
+	end
+
 endmodule
